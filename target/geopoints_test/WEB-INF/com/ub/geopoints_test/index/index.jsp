@@ -3,4 +3,11 @@
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
 <%@ taglib prefix="s" uri="http://www.springframework.org/tags" %>
 
-hello
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-12" id="map">
+
+        </div>
+    </div>
+</div>
