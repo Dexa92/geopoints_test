@@ -50,4 +50,11 @@
         </property>
     </bean>
 
+    <mvc:interceptors>
+        <mvc:interceptor>
+            <mvc:mapping path="/**"/>
+            <bean class="com.ub.geopoints_test.index.interceptions.Interceptor"/>
+        </mvc:interceptor>
+    </mvc:interceptors>
+
 </beans>

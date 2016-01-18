@@ -3,11 +3,98 @@
     margin-top: 80px;
 }
 
-.top-container{
+.top-container {
 
     margin-bottom: 80px;
 }
 
-#map{
+#map {
     height: 100%;
+}
+
+.nav > li > a {
+    padding-right: 5px;
+}
+
+.tab-pane .btn-login,
+.tab-pane .btn-registrate {
+    padding: 5px 50px;
+    background-color: #1b9cff;
+    border: none;
+    color: white;
+    margin-top: 10px;
+    font-size: 18px;
+    margin-right: 40px;
+}
+
+.forget-underline-blue {
+    text-decoration: underline;
+    color: #1b9cff;
+}
+
+div.login {
+    background-color: #ffffff;
+    text-align: center;
+    color: #1b9cff;
+}
+
+div.login:hover {
+    background-color: #1b9cff;
+    color: #ffffff;
+    cursor: pointer;
+}
+
+div.login.active, div.login.active:hover, div.login.active > a, div.login:hover > a {
+    color: white;
+    background: #1b9cff;
+    cursor: pointer;
+}
+
+div.registration {
+    background-color: #ffffff;
+    text-align: center;
+    color: #313D53;
+}
+
+div.registration.active, div.registration:hover, div.registration.active > a, div.registration:hover > a {
+    background-color: #313D53;
+    color: #ffffff;
+    cursor: pointer;
+}
+
+div.registration.active:hover {
+    color: white;
+    background-color: #313D53;
+    cursor: pointer;
+}
+
+.modal-content > div > .modal-padding {
+    padding: 15px;
+}
+
+#login > .row, #registration > .row {
+    margin: 130px 0 0 0;
+    padding: 0 100px;
+}
+#login-modal .login > a, #login-modal .registration > a {
+    font-size: 28px;
+}
+#login-modal .registration > a {
+    font-size: 28px;
+    color: #313D53;
+}
+#login-modal .registration > a:hover {
+    font-size: 28px;
+    color: #ffffff;
+}
+#login-modal .registration:hover > a, #login-modal .registration.active > a {
+    background-color: #313D53;
+    color: #ffffff;
+    cursor: pointer;
+}
+#login-modal .modal-content {
+    background: #E7F4FD;
+}
+#login-modal .form-group > label {
+    padding-left: 15px;
 }
