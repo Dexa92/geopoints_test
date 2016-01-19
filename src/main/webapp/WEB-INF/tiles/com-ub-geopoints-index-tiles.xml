@@ -12,4 +12,8 @@
         <put-attribute name="content" value="/WEB-INF/com/ub/geopoints_test/index/index.jsp"/>
     </definition>
 
+    <definition name="com.ub.geopoints_test.about" extends="com.ub.geopoints_test.layout">
+        <put-attribute name="content" value="/WEB-INF/com/ub/geopoints_test/about/about.jsp"/>
+    </definition>
+
 </tiles-definitions>

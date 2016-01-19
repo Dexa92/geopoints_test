@@ -1,6 +1,6 @@
 package com.ub.geopoints_test.index.routes;
 
-public class IndexRoutes {
+public class IndexGeopointsRoutes {
 
     public static final String ROOT = "/";
 
