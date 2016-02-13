@@ -1,5 +1,6 @@
 <%@ page import="com.ub.geopoints_test.user.routes.UserGeopointsRoutes" %>
 <%@ page import="com.ub.geopoints_test.about.routes.AboutGeopointsRoutes" %>
+<%@ page import="com.ub.geopoints_test.tracks.routes.TracksGeopointsRoutes" %>
 <%@ taglib uri="http://tiles.apache.org/tags-tiles" prefix="tiles" %>
 <%@taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib prefix="form" uri="http://www.springframework.org/tags/form" %>
@@ -12,7 +13,7 @@
                 <a href="/">Главная</a>
             </li>
             <li>
-                <a href="#">GPS треки</a>
+                <a href="<%= TracksGeopointsRoutes.TRACKS%>">GPS треки</a>
             </li>
             <li>
                 <a href="<%= AboutGeopointsRoutes.ABOUT%>">О проекте</a>

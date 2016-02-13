@@ -36,7 +36,7 @@
 
 <script src="/static/geopoints_test/js/jquery-1.11.3.js"></script>
 <script src="/static/geopoints_test/js/bootstrap.js"></script>
-<script src="/static/geopoints_test/js/loginOrRegistration.js"></script>
+<script src="/static/geopoints_test/js/geopoints_test/loginOrRegistration.js"></script>
 
 </body>
 </html>

@@ -67,7 +67,7 @@
                                 </div>
                                 <div id="too-short-password" style="display: none">
                                     <div class="alert alert-danger">
-                                        Пароль должен содержать латинские буквы, цифры, спец символы и быть больше 6 символов.
+                                        Пароль должен содержать латинские буквы, цифры, спец символы и быть не менее 6 символов.
                                     </div>
                                 </div>
                                 <div class="form-group">

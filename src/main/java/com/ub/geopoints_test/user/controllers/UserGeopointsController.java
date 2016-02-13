@@ -1,12 +1,9 @@
 package com.ub.geopoints_test.user.controllers;
 
 
-import com.ub.core.base.email.SimpleMailRunnable;
 import com.ub.core.base.utils.RouteUtils;
 import com.ub.core.security.service.AutorizationService;
 import com.ub.core.security.service.exceptions.UserNotAutorizedException;
-import com.ub.core.user.models.UserDoc;
-import com.ub.core.user.models.UserEmailVerifiedDoc;
 import com.ub.core.user.service.UserService;
 import com.ub.core.user.service.exceptions.UserExistException;
 import com.ub.geopoints_test.user.routes.UserGeopointsRoutes;
@@ -19,8 +16,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.regex.Pattern;
 
 @Controller
@@ -41,7 +36,7 @@ public class UserGeopointsController {
 
 
 
-        return "com.ub.geopoints.user.lk";
+        return "com.ub.geopoints_test.user.lk";
 
     }
 
@@ -56,18 +51,7 @@ public class UserGeopointsController {
         if (!password.matches(REG_PASSWORD) || password.length() < 6)
             return "2";
         try {
-            UserDoc userDoc = userService.createUserByEmail(email, password);
-            UserEmailVerifiedDoc userEmailVerifiedDoc = userService.createUserByEmailWithVerified(email, password);
-            List<String> emails = new ArrayList<String>();
-            emails.add(userEmailVerifiedDoc.getEmail());
-            SimpleMailRunnable simpleMailRunnable = new SimpleMailRunnable();
-            simpleMailRunnable.setEmails(emails);
-            simpleMailRunnable.setTitle("Подтверждение регистрации на сайте geopoints.ru");
-            simpleMailRunnable.setBody("Для окончания регистрации перейдите по ссылке: <a href=\"http://localhost:8080/verification?code=" + userEmailVerifiedDoc.getCode() + "&email=" + userEmailVerifiedDoc.getEmail() + "\">geopoints.ru.ru</a>");
-            simpleMailRunnable.setFrom("geopoints@geopoints.ru");
-            simpleMailRunnable.setMailSender(javaMailSender);
-
-            simpleMailRunnable.start();
+            userService.createUserByEmail(email, password);
         } catch (UserExistException e) {
             return "1";
         }
