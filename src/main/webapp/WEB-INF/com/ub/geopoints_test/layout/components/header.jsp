@@ -13,7 +13,7 @@
                 <a href="/">Главная</a>
             </li>
             <li>
-                <a href="<%= TracksGeopointsRoutes.TRACKS%>">GPS треки</a>
+                <a href="<%= TracksGeopointsRoutes.ALL%>">GPS треки</a>
             </li>
             <li>
                 <a href="<%= AboutGeopointsRoutes.ABOUT%>">О проекте</a>

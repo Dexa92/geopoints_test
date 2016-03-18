@@ -10,19 +10,19 @@ public class DotGeopointsDoc {
     @Id
     private ObjectId id;
 
-    private String lon;
-    private String lat;
+    private Double lon;
+    private Double lat;
     private String time;
-    private String ele;
+    private Double ele;
 
     private ObjectId trackId;
 
     public DotGeopointsDoc() {
 
-        lon = "";
-        lat = "";
+        lon = 0.0;
+        lat = 0.0;
         time = "";
-        ele = "";
+        ele = 0.0;
 
     }
 
@@ -34,20 +34,20 @@ public class DotGeopointsDoc {
         this.id = id;
     }
 
-    public String getLon() {
-        return lon;
-    }
-
-    public void setLon(String lon) {
-        this.lon = lon;
-    }
-
-    public String getLat() {
+    public Double getLat() {
         return lat;
     }
 
-    public void setLat(String lat) {
+    public void setLat(Double lat) {
         this.lat = lat;
+    }
+
+    public Double getLon() {
+        return lon;
+    }
+
+    public void setLon(Double lon) {
+        this.lon = lon;
     }
 
     public String getTime() {
@@ -58,11 +58,11 @@ public class DotGeopointsDoc {
         this.time = time;
     }
 
-    public String getEle() {
+    public Double getEle() {
         return ele;
     }
 
-    public void setEle(String ele) {
+    public void setEle(Double ele) {
         this.ele = ele;
     }
 

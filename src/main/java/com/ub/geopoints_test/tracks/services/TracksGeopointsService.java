@@ -1,9 +1,19 @@
 
 package com.ub.geopoints_test.tracks.services;
 
+import com.ub.geopoints_test.dots.models.DotGeopointsDoc;
+import com.ub.geopoints_test.tracks.exceptions.TrackNotExistException;
 import com.ub.geopoints_test.tracks.models.TracksGeopointsDoc;
+import com.ub.geopoints_test.tracks.views.SearchGeopointsTrackRequest;
+import com.ub.geopoints_test.tracks.views.SearchGeopointsTrackResponse;
+import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -18,86 +28,6 @@ public class TracksGeopointsService {
     @Autowired
     MongoTemplate mongoTemplate;
 
-    /*public void parseFile(MultipartFile file) throws IOException {
-
-        File newFile = convert(file);
-
-        try {
-
-            SAXParserFactory factory = SAXParserFactory.newInstance();
-            SAXParser saxParser = factory.newSAXParser();
-
-            DefaultHandler handler = new DefaultHandler() {
-
-                boolean blon = false;
-                boolean blat = false;
-                boolean bele = false;
-                //boolean bsalary = false;
-
-                public void startElement(String uri, String localName,String qName,
-                                         Attributes attributes) throws SAXException {
-
-                    //System.out.println("Start Element :" + qName);
-
-                    if (qName.equalsIgnoreCase("lon")) {
-                        blon = true;
-                    }
-
-                    if (qName.equalsIgnoreCase("lat")) {
-                        blat = true;
-                    }
-
-                    if (qName.equalsIgnoreCase("ele")) {
-                        bele = true;
-                    }
-
-                }
-
-                public void endElement(String uri, String localName,
-                                       String qName) throws SAXException {
-
-                    // System.out.println("End Element :" + qName);
-
-                }
-
-                public void characters(char ch[], int start, int length) throws SAXException {
-
-                    DotGeopointsDoc dotGeopointsDoc = new DotGeopointsDoc();
-                    if (blon) {
-                        dotGeopointsDoc.setLon(new String(ch, start, length));
-                        blon = false;
-                    }
-
-                    if (blat) {
-                        dotGeopointsDoc.setLat(new String(ch, start, length));
-                        blat = false;
-                    }
-
-                    if (bele) {
-                        dotGeopointsDoc.setEle(new String(ch, start, length));
-                        bele = false;
-                    }
-                    */
-/*try {
-                        save(dotGeopointsDoc);
-                    } catch (DotExistException e) {
-                        e.printStackTrace();
-                    }*//*
-
-
-                }
-
-            };
-
-            saxParser.parse(newFile, handler);
-
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-    }*/
-
     public File convert(MultipartFile file) throws IOException {
         File convFile = new File(file.getOriginalFilename());
         convFile.createNewFile();
@@ -109,9 +39,39 @@ public class TracksGeopointsService {
 
     public List<TracksGeopointsDoc> findAllTracks(){
 
-        List<TracksGeopointsDoc> tracks = mongoTemplate.findAll(TracksGeopointsDoc.class);
+        return mongoTemplate.findAll(TracksGeopointsDoc.class);
 
-        return tracks;
+    }
+
+    public SearchGeopointsTrackResponse findAll(SearchGeopointsTrackRequest searchGeopointsTrackRequest){
+
+        Sort sort = new Sort(Sort.Direction.DESC, "uploadDate");
+        Pageable pageable = new PageRequest(
+                searchGeopointsTrackRequest.getCurrentPage(),
+                searchGeopointsTrackRequest.getPageSize(),
+                sort);
+
+        Criteria criteria = new Criteria();
+        Query query = new Query(criteria);
+        Long count = mongoTemplate.count(query, TracksGeopointsDoc.class);
+
+        query = query.with(pageable);
+
+        List<TracksGeopointsDoc> result = mongoTemplate.find(query, TracksGeopointsDoc.class);
+
+        SearchGeopointsTrackResponse response = new SearchGeopointsTrackResponse(
+                searchGeopointsTrackRequest.getCurrentPage(),
+                searchGeopointsTrackRequest.getPageSize(),
+                result);
+        response.setAll(count.intValue());
+        return response;
+
+    }
+
+    public List<TracksGeopointsDoc> findAllTracksAvailable(int limit){
+
+        Query query = new Query(new Criteria("available").is(true)).limit(limit).with(new Sort(Sort.Direction.DESC, "uploadDate"));
+        return mongoTemplate.find(query, TracksGeopointsDoc.class);
 
     }
 
@@ -123,27 +83,58 @@ public class TracksGeopointsService {
 
     }
 
-}
+    public List<DotGeopointsDoc> getAllTrackDots(ObjectId trackId) throws TrackNotExistException {
 
-    /*public DotGeopointsDoc save(DotGeopointsDoc dotGeopointsDoc) throws DotExistException{
-
-        if (dotGeopointsDoc.getId() == null) {
-            DotGeopointsDoc old = findById(dotGeopointsDoc.getId());
-            if (old != null) {
-                throw new DotExistException();
-            }
+        if (trackId != null){
+            Criteria criteria = Criteria.where("trackId").is(trackId);
+            return mongoTemplate.find(new Query(criteria), DotGeopointsDoc.class);
+        } else {
+            throw new TrackNotExistException();
         }
 
-        mongoTemplate.save(dotGeopointsDoc);
-        return dotGeopointsDoc;
+    }
+
+    public TracksGeopointsDoc findByUrl(String url){
+
+        return mongoTemplate.findOne(new Query(Criteria.where("url").is(url)), TracksGeopointsDoc.class);
 
     }
 
-    public DotGeopointsDoc findById(ObjectId id){
+    public TracksGeopointsDoc findById(ObjectId id){
 
-        return mongoTemplate.findOne(new Query(Criteria.where("id").is(id)), DotGeopointsDoc.class);
+        return mongoTemplate.findOne(new Query(Criteria.where("id").is(id)), TracksGeopointsDoc.class);
+
+    }
+
+    public void deleteTrack(ObjectId id){
+
+        TracksGeopointsDoc tracksGeopointsDoc = findById(id);
+        mongoTemplate.remove(tracksGeopointsDoc);
+
+    }
+
+    public SearchGeopointsTrackResponse findAllTracksOfUser(SearchGeopointsTrackRequest searchGeopointsTrackRequest, ObjectId userId){
+
+        Sort sort = new Sort(Sort.Direction.DESC, "uploadDate");
+        Pageable pageable = new PageRequest(
+                searchGeopointsTrackRequest.getCurrentPage(),
+                searchGeopointsTrackRequest.getPageSize(),
+                sort);
+
+        Query query = new Query(Criteria.where("userId").is(userId));
+        Long count = mongoTemplate.count(query, TracksGeopointsDoc.class);
+
+        query = query.with(pageable);
+
+        List<TracksGeopointsDoc> result = mongoTemplate.find(query, TracksGeopointsDoc.class);
+
+        SearchGeopointsTrackResponse response = new SearchGeopointsTrackResponse(
+                searchGeopointsTrackRequest.getCurrentPage(),
+                searchGeopointsTrackRequest.getPageSize(),
+                result);
+        response.setAll(count.intValue());
+        return response;
 
     }
 
 }
-*/

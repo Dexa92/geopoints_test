@@ -8,8 +8,8 @@
     margin-bottom: 80px;
 }
 
-#map {
-    height: 100%;
+#index-map {
+    height: 800px;
 }
 
 .nav > li > a {
@@ -97,4 +97,45 @@ div.registration.active:hover {
 }
 #login-modal .form-group > label {
     padding-left: 15px;
+}
+.insert-map {
+    margin: 15px;
+}
+
+#upload-track-modal .modal-content {
+    background: #E7F4FD;
+    padding: 15px;
+}
+
+.upload-track {
+    padding: 5px 50px;
+    background-color: #1b9cff;
+    border: none;
+    color: white;
+    margin-top: 10px;
+    font-size: 18px;
+    margin-right: 40px;
+}
+
+#map-edit {
+    height: 555px;
+}
+
+#map-track {
+    height: 555px;
+}
+
+.map-edit {
+    height: 555px;
+}
+
+.modal-footer {
+    padding: 10px;
+}
+.modal-body {
+    padding: 10px;
+}
+
+.lk-map .leaflet-control-container .leaflet-routing-container-hide {
+    display: none;
 }

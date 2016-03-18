@@ -1,5 +1,7 @@
 package com.ub.geopoints_test.dots.services;
 
+import com.ub.core.security.service.AutorizationService;
+import com.ub.core.security.service.exceptions.UserNotAutorizedException;
 import com.ub.geopoints_test.dots.models.DotGeopointsDoc;
 import com.ub.geopoints_test.tracks.models.TracksGeopointsDoc;
 import com.ub.geopoints_test.tracks.services.TracksGeopointsService;
@@ -8,7 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import org.xml.sax.Attributes;
 import org.xml.sax.SAXException;
 import org.xml.sax.helpers.DefaultHandler;
@@ -16,32 +18,44 @@ import org.xml.sax.helpers.DefaultHandler;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
 import javax.xml.parsers.SAXParserFactory;
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-@Component
+@Service
 public class MySaxParser extends DefaultHandler{
 
     @Autowired
     private MongoTemplate mongoTemplate;
     @Autowired
     private TracksGeopointsService tracksGeopointsService;
+    @Autowired
+    private AutorizationService autorizationService;
 
     private List<DotGeopointsDoc> dotGeopointsDocList;
     private String xmlFileName;
     private String tmpValue;
     private DotGeopointsDoc dotGeopointsDoc;
-    private TracksGeopointsDoc tracksGeopointsDoc = new TracksGeopointsDoc();
+    private TracksGeopointsDoc tracksGeopointsDoc;
+    private String extention;
+    private boolean ifLat;
+    private boolean ifLon;
+    private boolean ifEle;
 
-    public void setUpMySaxParser(String bookXmlFileName, File file) {
+    public void setUpMySaxParser(String bookXmlFileName, ObjectId id, String fileName) {
         this.xmlFileName = bookXmlFileName;
+        tmpValue = "";
         dotGeopointsDocList = new ArrayList<DotGeopointsDoc>();
         dotGeopointsDoc = new DotGeopointsDoc();
+        tracksGeopointsDoc = new TracksGeopointsDoc();
+        extention = fileName.split("[.]")[1];
+        ifLat = false;
+        ifLon = false;
+        ifEle = false;
         List<TracksGeopointsDoc> tracks = tracksGeopointsService.findAllTracks();
         if (tracks.size() != 0) {
-            tracksGeopointsDoc = mongoTemplate.findOne(new Query(Criteria.where("file").is(file)), TracksGeopointsDoc.class);
+            tracksGeopointsDoc = mongoTemplate.findOne(new Query(Criteria.where("id").is(id)), TracksGeopointsDoc.class);
+            if (tracksGeopointsDoc == null) tracksGeopointsDoc = new TracksGeopointsDoc();
         }
         parseDocument();
     }
@@ -66,31 +80,40 @@ public class MySaxParser extends DefaultHandler{
         // if current element is book , create new book
         // clear tmpValue on start of element
         //this.dotGeopointsDoc = new DotGeopointsDoc();
-        if (elementName.equalsIgnoreCase("trkpt")) {
-            dotGeopointsDoc.setId(new ObjectId());
-            dotGeopointsDoc.setLat(attributes.getValue("lat"));
-            dotGeopointsDoc.setLon(attributes.getValue("lon"));
-            //dotGeopointsDoc.setEle(attributes.getValue("ele"));
-            //currentDotGeopointsDoc = dotGeopointsDoc;
-        }
-        /*if (elementName.equalsIgnoreCase("ele")) {
-            dotGeopointsDoc.setEle((attributes.getValue("ele")));
-            //currentDotGeopointsDoc = dotGeopointsDoc;
-        }*/
+        if (extention.equals("gpx")) {
+            if (elementName.equalsIgnoreCase("trkpt")) {
+                dotGeopointsDoc.setId(new ObjectId());
+                dotGeopointsDoc.setLat(new Double(attributes.getValue("lat")));
+                dotGeopointsDoc.setLon(new Double(attributes.getValue("lon")));
+            }
+            if (elementName.equalsIgnoreCase("ele")){
+                ifEle = true;
+            }
+        } else if (extention.equals("kml")){
 
+            if (elementName.equalsIgnoreCase("coordinates")){
+               // String coordinates =
+            }
+
+        }
 
     }
 
     @Override
     public void endElement(String s, String s1, String element) throws SAXException {
-        // if end of book element add to list
-        if (element.equals("trkpt")) {
+        if (element.equalsIgnoreCase("trkpt")) {
+            dotGeopointsDoc.setTrackId(tracksGeopointsDoc.getId());
             dotGeopointsDocList.add(dotGeopointsDoc);
             mongoTemplate.save(dotGeopointsDoc);
             dotGeopointsDoc = new DotGeopointsDoc();
         }
         if (element.equalsIgnoreCase("trk")) {
             tracksGeopointsDoc.setDots(dotGeopointsDocList);
+            try {
+                tracksGeopointsDoc.setUserId(autorizationService.getUserFromSession().getId());
+            } catch (UserNotAutorizedException e) {
+                e.printStackTrace();
+            }
             mongoTemplate.save(tracksGeopointsDoc);
         }
         /*if (element.equalsIgnoreCase("isbn")) {
@@ -115,8 +138,12 @@ public class MySaxParser extends DefaultHandler{
     }
 
     @Override
-    public void characters(char[] ac, int i, int j) throws SAXException {
-        tmpValue = new String(ac, i, j);
+    public void characters(char[] ch, int start, int length) throws SAXException {
+        if (ifEle) {
+            Double d = Double.parseDouble(new String(ch, start, length));
+            dotGeopointsDoc.setEle(d);
+            ifEle = false;
+        }
     }
 
 }
